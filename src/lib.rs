@@ -3,7 +3,6 @@ use crate::types::ApiResponse;
 use serde::{Serialize, de::DeserializeOwned};
 
 const DEFAULT_URL: &str = "https://fuyao.aicubes.cn";
-const MAX_TICKER_SEARCH_LIMIT: u8 = 50;
 
 /// 同花顺金融数据 API 客户端。
 ///
@@ -77,33 +76,13 @@ impl HiThinkFinancialClient {
 	///
 	/// 接口文档：https://fuyao.aicubes.cn/docs/api-reference/ticker-search/
 	///
-	/// `limit` 省略时由服务端使用默认值 10；传入时必须不大于 50。
+	/// `limit` 省略时由服务端使用默认值 10。
 	pub async fn ticker_search(
 		&self,
 		req: types::TickerSearchRequest,
 	) -> anyhow::Result<ApiResponse<types::TickerSearchResponse>> {
 		const PATH: &str = "api/meta/tickers/search";
 
-		if req.limit.is_some_and(|limit| limit > MAX_TICKER_SEARCH_LIMIT) {
-			anyhow::bail!("ticker search limit must not exceed {MAX_TICKER_SEARCH_LIMIT}");
-		}
-
 		self.request(PATH, Some(req)).await
-	}
-}
-
-#[cfg(test)]
-mod tests {
-	use super::HiThinkFinancialClient;
-	use crate::types::TickerSearchRequest;
-
-	#[tokio::test]
-	async fn rejects_limit_above_documented_maximum() {
-		let client = HiThinkFinancialClient::new("unused");
-		let request =
-			TickerSearchRequest { q: "000001".to_string(), asset_type: None, limit: Some(51) };
-
-		let error = client.ticker_search(request).await.unwrap_err();
-		assert!(error.to_string().contains("must not exceed 50"));
 	}
 }
