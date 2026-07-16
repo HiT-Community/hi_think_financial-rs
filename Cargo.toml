@@ -1,8 +1,10 @@
 [package]
-name = "financial"
+name = "hi_think_financial"
 version = "0.1.0"
 edition = "2024"
-repository = "https://github.com/HiT-Community/financial-rs.git"
+repository = "https://github.com/HiT-Community/hi_think_financial-rs.git"
+description = "Community-maintained Rust SDK for the HiThink financial data API."
+license = "MIT"
 authors = ["译名画家 2356450144@qq.com"]
 
 [dependencies]
