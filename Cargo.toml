@@ -4,9 +4,13 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-reqwest = {version = "0.13.4"}
+reqwest = {version = "0.13.4", features = ["json"]}
 tracing = {version = "0.1.43"}
 anyhow = {version = "1.0.102"}
+serde = {version = "1.0.227", features = ["derive"]}
+serde_urlencoded = "0.7"
+serde_json = "1.0"
 
 [dev-dependencies]
 tokio = { version = "1.40.0", features = ["rt", "macros"] }
+dotenvy= {version = "0.15.6"}
