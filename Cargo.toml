@@ -3,6 +3,7 @@ name = "financial"
 version = "0.1.0"
 edition = "2024"
 repository = "https://github.com/HiT-Community/financial-rs.git"
+authors = ["译名画家 2356450144@qq.com"]
 
 [dependencies]
 reqwest = {version = "0.13.4", features = ["json"]}
