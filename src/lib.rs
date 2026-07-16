@@ -35,7 +35,7 @@ impl HiThinkFinancialClient {
 	/// 发送带查询参数的 GET 请求，校验统一响应信封并返回业务数据。
 	///
 	/// HTTP 请求失败、HTTP 状态码非成功或 API 业务状态码非零时返回错误。
-	async fn request<T, Q>(&self, path: &str, req: Option<Q>) -> anyhow::Result<T>
+	pub async fn request<T, Q>(&self, path: &str, req: Option<Q>) -> anyhow::Result<T>
 	where
 		T: DeserializeOwned,
 		Q: Serialize,
