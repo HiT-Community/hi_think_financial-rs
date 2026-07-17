@@ -125,33 +125,33 @@ impl HiThinkFinancialClient {
 
 	/// 获取全市场近十年未复权日 K Parquet 文件的短时有效下载链接。
 	///
-	/// 接口地址：`GET /dump/market-dumps/daily-k/download-url`。
+	/// 接口地址：`GET /api/dump/market-dumps/daily-k/download-url`。
 	pub async fn market_dump_daily_k_download_url(
 		&self,
 	) -> anyhow::Result<types::MarketDumpDownloadUrlResponse> {
-		const PATH: &str = "dump/market-dumps/daily-k/download-url";
+		const PATH: &str = "api/dump/market-dumps/daily-k/download-url";
 
 		self.request::<types::MarketDumpDownloadUrlResponse, ()>(PATH, None).await
 	}
 
 	/// 获取全市场最近十个交易日未复权日 K Parquet 文件的短时有效下载链接。
 	///
-	/// 接口地址：`GET /dump/market-dumps/daily-k-10d/download-url`。
+	/// 接口地址：`GET /api/dump/market-dumps/daily-k-10d/download-url`。
 	pub async fn market_dump_daily_k_10d_download_url(
 		&self,
 	) -> anyhow::Result<types::MarketDumpDownloadUrlResponse> {
-		const PATH: &str = "dump/market-dumps/daily-k-10d/download-url";
+		const PATH: &str = "api/dump/market-dumps/daily-k-10d/download-url";
 
 		self.request::<types::MarketDumpDownloadUrlResponse, ()>(PATH, None).await
 	}
 
 	/// 获取全市场复权因子 Parquet 文件的短时有效下载链接。
 	///
-	/// 接口地址：`GET /dump/market-dumps/adjustment-factors/download-url`。
+	/// 接口地址：`GET /api/dump/market-dumps/adjustment-factors/download-url`。
 	pub async fn market_dump_adjustment_factors_download_url(
 		&self,
 	) -> anyhow::Result<types::MarketDumpDownloadUrlResponse> {
-		const PATH: &str = "dump/market-dumps/adjustment-factors/download-url";
+		const PATH: &str = "api/dump/market-dumps/adjustment-factors/download-url";
 
 		self.request::<types::MarketDumpDownloadUrlResponse, ()>(PATH, None).await
 	}

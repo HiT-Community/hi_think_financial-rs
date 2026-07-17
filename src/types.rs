@@ -231,13 +231,17 @@ pub struct PriceBarItem {
 /// 市场数据导出接口的响应数据。
 ///
 /// 三个导出接口均返回短时有效的 S3 预签名下载链接：
-/// `GET /dump/market-dumps/daily-k/download-url`、
-/// `GET /dump/market-dumps/daily-k-10d/download-url` 与
-/// `GET /dump/market-dumps/adjustment-factors/download-url`。
+/// `GET /api/dump/market-dumps/daily-k/download-url`、
+/// `GET /api/dump/market-dumps/daily-k-10d/download-url` 与
+/// `GET /api/dump/market-dumps/adjustment-factors/download-url`。
 #[derive(Debug, Deserialize)]
 pub struct MarketDumpDownloadUrlResponse {
 	/// 指向 Parquet 文件的短时有效预签名下载链接。
-	pub url: String,
+	pub presigned_url: String,
+	/// 预签名下载链接的过期时间。
+	pub presigned_url_expires_at: String,
+	/// 预签名下载链接距离过期的秒数。
+	pub expires_in_seconds: u64,
 }
 
 /// A 股复权因子事件流接口的请求参数。
@@ -1293,9 +1297,17 @@ mod tests {
 		.unwrap();
 		assert_eq!(historical.item[0].date_ms, 1_716_134_400_000);
 
-		let download: MarketDumpDownloadUrlResponse =
-			serde_json::from_str(r#"{"url":"https://download.example/file.parquet"}"#).unwrap();
-		assert_eq!(download.url, "https://download.example/file.parquet");
+		let download: MarketDumpDownloadUrlResponse = serde_json::from_str(
+			r#"{
+				"presigned_url": "https://download.example/file.parquet",
+				"presigned_url_expires_at": "2026-07-17T10:29:57.827304315+08:00",
+				"expires_in_seconds": 300
+			}"#,
+		)
+		.unwrap();
+		assert_eq!(download.presigned_url, "https://download.example/file.parquet");
+		assert_eq!(download.presigned_url_expires_at, "2026-07-17T10:29:57.827304315+08:00");
+		assert_eq!(download.expires_in_seconds, 300);
 	}
 
 	#[test]
