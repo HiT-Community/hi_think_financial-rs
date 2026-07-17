@@ -27,3 +27,7 @@
 ## 联系我
 
 - [Bilibili](https://space.bilibili.com/3546892086544493)
+
+## 扫码加群
+
+![同花顺金融数据社区群二维码](docs/image/hi_think_financial_community.png)
