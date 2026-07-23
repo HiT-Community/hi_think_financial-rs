@@ -1097,6 +1097,322 @@ pub struct DragonTigerHotMoneyItem {
 	pub rows: Vec<DragonTigerStockItem>,
 }
 
+/// 基金类型。
+#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "lowercase")]
+pub enum FundType {
+	/// 场外公募基金。
+	Otc,
+	/// ETF 或 LOF 等场内基金。
+	Exchange,
+	/// 公募 REITs。
+	Reits,
+}
+
+/// 基金持有人数据的份额合并口径。
+#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "lowercase")]
+pub enum FundMergeScope {
+	/// 分别返回合并和独立份额的最新记录。
+	All,
+	/// 合并份额披露口径。
+	Merged,
+	/// 独立份额披露口径。
+	Separate,
+}
+
+/// 基金持有人结构接口的请求参数。
+#[derive(Debug, Serialize)]
+pub struct FundHoldersDetailRequest {
+	/// 基金类型。
+	pub fund_type: FundType,
+	/// 完整基金同花顺代码。
+	pub thscode: String,
+	/// 可选的份额合并口径；省略时服务端返回全部口径。
+	#[serde(skip_serializing_if = "Option::is_none")]
+	pub merge_scope: Option<FundMergeScope>,
+}
+
+/// 基金持有人结构接口的响应数据。
+#[derive(Debug, Deserialize)]
+pub struct FundHoldersDetailResponse {
+	/// 返回记录中最新的报告日，Unix 毫秒时间戳。
+	pub timestamp: i64,
+	/// 持有人结构记录。
+	pub item: Vec<FundHoldersItem>,
+}
+
+/// 单条基金持有人结构记录。
+#[derive(Debug, Deserialize)]
+pub struct FundHoldersItem {
+	/// 实际披露口径。
+	pub merge_scope: FundMergeScope,
+	/// 报告日，Unix 毫秒时间戳。
+	pub report_date_ms: i64,
+	/// 机构投资者占比，百分数原值。
+	pub ins_position: f64,
+	/// 基金份额持有人户数。
+	pub holder_amount: i64,
+	/// 平均每户持有基金份额。
+	pub avg_holder_share: f64,
+	/// 个人投资者占比，百分数原值。
+	pub psnl_rate: f64,
+	/// 管理人员工持有比例，百分数原值。
+	pub mgmt_staff_hold_rate: f64,
+}
+
+/// 基金重仓股接口的请求参数。
+#[derive(Debug, Serialize)]
+pub struct FundPortfolioHoldingsRequest {
+	/// 基金类型。
+	pub fund_type: FundType,
+	/// 完整基金同花顺代码。
+	pub thscode: String,
+}
+
+/// 基金重仓股接口的响应数据。
+#[derive(Debug, Deserialize)]
+pub struct FundPortfolioHoldingsResponse {
+	/// 数据时间戳，Unix 毫秒时间戳。
+	pub timestamp: i64,
+	/// 重仓股票列表。
+	pub item: Vec<FundHoldingItem>,
+}
+
+/// 单条基金重仓股票记录。
+#[derive(Debug, Deserialize)]
+pub struct FundHoldingItem {
+	/// 持仓股票的完整同花顺代码。
+	pub thscode: String,
+	/// 持仓股票的纯代码。
+	pub ticker: String,
+	/// 持仓股票名称。
+	pub stock_name: String,
+	/// 占基金净值比例，百分数原值。
+	pub hold_ratio: f64,
+}
+
+/// 单只 ETF 行情快照接口的请求参数。
+#[derive(Debug, Serialize)]
+pub struct FundMarketSnapshotRequest {
+	/// 单只 ETF 的完整同花顺代码。
+	pub thscode: String,
+}
+
+/// 单只 ETF 行情快照接口的响应数据。
+#[derive(Debug, Deserialize)]
+pub struct FundMarketSnapshotResponse {
+	/// 快照的上游有效时间；无有效数据时为 `null`。
+	pub timestamp: Option<i64>,
+	/// 行情快照记录。
+	pub item: Vec<FundMarketSnapshotItem>,
+}
+
+/// 单条 ETF 行情快照记录。
+#[derive(Debug, Deserialize)]
+pub struct FundMarketSnapshotItem {
+	/// ETF 的完整同花顺代码。
+	pub thscode: String,
+	/// ETF 的纯基金代码。
+	pub ticker: String,
+	/// 最新价。
+	pub last_price: f64,
+	/// 开盘价。
+	pub open_price: f64,
+	/// 最高价。
+	pub high_price: f64,
+	/// 最低价。
+	pub low_price: f64,
+	/// 昨收价。
+	pub prev_price: f64,
+	/// 涨跌幅，百分数原值。
+	pub price_change_ratio_pct: f64,
+	/// 涨跌额。
+	pub price_change: f64,
+	/// 振幅，百分数原值。
+	pub price_amplitude_ratio_pct: f64,
+	/// 成交量。
+	pub volume: f64,
+	/// 成交额。
+	pub turnover: f64,
+	/// 换手率，百分数原值。
+	pub turnover_ratio_pct: f64,
+}
+
+/// 单只 ETF 历史日 K 线接口的请求参数。
+#[derive(Debug, Serialize)]
+pub struct FundMarketHistoricalRequest {
+	/// 单只 ETF 的完整同花顺代码。
+	pub thscode: String,
+	/// K 线周期；省略时服务端默认日 K。
+	#[serde(skip_serializing_if = "Option::is_none")]
+	pub interval: Option<PriceInterval>,
+	/// 查询起始时间，Unix 毫秒时间戳。
+	pub start: i64,
+	/// 查询结束时间，Unix 毫秒时间戳。
+	pub end: i64,
+}
+
+/// 单只 ETF 历史日 K 线接口的响应数据。
+#[derive(Debug, Deserialize)]
+pub struct FundMarketHistoricalResponse {
+	/// 数据就绪时间，Unix 毫秒时间戳。
+	pub timestamp: i64,
+	/// 请求中的 ETF 同花顺代码。
+	pub thscode: String,
+	/// K 线周期，当前固定为 `1d`。
+	pub interval: PriceInterval,
+	/// ETF 当前没有复权语义，服务端固定返回 `null`。
+	pub adjust: Option<PriceAdjust>,
+	/// 历史日 K 线记录。
+	pub item: Vec<PriceBarItem>,
+}
+
+/// 基金净值查询的时间范围。
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "lowercase")]
+pub enum FundNavRange {
+	/// 近一周。
+	Week,
+	/// 近一月。
+	Month,
+	/// 近三月。
+	Tmonth,
+	/// 近半年。
+	Hyear,
+	/// 近一年。
+	Year,
+	/// 近两年。
+	Twoyear,
+	/// 近三年。
+	Tyear,
+	/// 近五年。
+	Fyear,
+}
+
+/// 基金净值类型。
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
+pub enum FundNavType {
+	/// 单位净值。
+	#[serde(rename = "unit")]
+	Unit,
+	/// 复权净值。
+	#[serde(rename = "adj")]
+	Adjusted,
+	/// 同时返回单位净值和复权净值。
+	#[serde(rename = "unit,adj")]
+	Both,
+}
+
+/// 基金净值接口的请求参数。
+#[derive(Debug, Serialize)]
+pub struct FundPerformanceNavRequest {
+	/// 基金类型。
+	pub fund_type: FundType,
+	/// 完整基金同花顺代码。
+	pub thscode: String,
+	/// 可选的净值时间范围；省略时仅返回最新一条。
+	#[serde(skip_serializing_if = "Option::is_none")]
+	pub range: Option<FundNavRange>,
+	/// 可选的净值类型；省略时由服务端返回两种净值。
+	#[serde(skip_serializing_if = "Option::is_none")]
+	pub nav_type: Option<FundNavType>,
+}
+
+/// 基金净值接口的响应数据。
+#[derive(Debug, Deserialize)]
+pub struct FundPerformanceNavResponse {
+	/// 数据时间戳，Unix 毫秒时间戳。
+	pub timestamp: i64,
+	/// 净值记录。
+	pub item: Vec<FundNavItem>,
+}
+
+/// 单条基金净值记录。
+#[derive(Debug, Deserialize)]
+pub struct FundNavItem {
+	/// 净值日期，Unix 毫秒时间戳。
+	pub nav_date: i64,
+	/// 单位净值；未请求时不返回。
+	pub unit_nav: Option<f64>,
+	/// 复权净值；未请求时不返回。
+	pub adj_nav: Option<f64>,
+}
+
+/// 基金区间收益接口的请求参数。
+#[derive(Debug, Serialize)]
+pub struct FundPerformanceReturnsRequest {
+	/// 基金类型。
+	pub fund_type: FundType,
+	/// 完整基金同花顺代码。
+	pub thscode: String,
+}
+
+/// 基金区间收益接口的响应数据。
+#[derive(Debug, Deserialize)]
+pub struct FundPerformanceReturnsResponse {
+	/// 数据时间戳，Unix 毫秒时间戳。
+	pub timestamp: i64,
+	/// 区间收益记录。
+	pub item: Vec<FundReturnsItem>,
+}
+
+/// 单条基金区间收益记录。
+#[derive(Debug, Deserialize)]
+pub struct FundReturnsItem {
+	/// 近一月收益率，百分数原值。
+	pub return_month: Option<f64>,
+	/// 近三月收益率，百分数原值。
+	pub return_tmonth: Option<f64>,
+	/// 近半年收益率，百分数原值。
+	pub return_hyear: Option<f64>,
+	/// 近一年收益率，百分数原值。
+	pub return_year: Option<f64>,
+	/// 近三年收益率，百分数原值。
+	pub return_tyear: Option<f64>,
+	/// 近五年收益率，百分数原值。
+	pub return_fyear: Option<f64>,
+	/// 今年以来收益率，百分数原值。
+	pub return_nowyear: Option<f64>,
+	/// 成立以来收益率，百分数原值。
+	pub return_now: Option<f64>,
+}
+
+/// 基金基本资料接口的请求参数。
+#[derive(Debug, Serialize)]
+pub struct FundProfileDetailRequest {
+	/// 基金类型。
+	pub fund_type: FundType,
+	/// 完整基金同花顺代码。
+	pub thscode: String,
+}
+
+/// 基金基本资料接口的响应数据。
+#[derive(Debug, Deserialize)]
+pub struct FundProfileDetailResponse {
+	/// 数据时间戳，Unix 毫秒时间戳。
+	pub timestamp: i64,
+	/// 基金基本资料记录。
+	pub item: Vec<FundProfileItem>,
+}
+
+/// 单条基金基本资料记录。
+#[derive(Debug, Deserialize)]
+pub struct FundProfileItem {
+	/// 完整基金同花顺代码。
+	pub thscode: String,
+	/// 纯基金代码。
+	pub ticker: String,
+	/// 基金名称。
+	pub fund_name: Option<String>,
+	/// 成立日期，Unix 毫秒时间戳。
+	pub estab_date: Option<i64>,
+	/// 基金管理人名称。
+	pub mgmt_name: Option<String>,
+	/// 基金经理姓名。
+	pub manager_name: Option<String>,
+}
+
 #[cfg(test)]
 mod tests {
 	use super::{
@@ -1132,6 +1448,109 @@ mod tests {
 			serde_urlencoded::to_string(request).unwrap(),
 			"q=000001&asset_type=a-share-index&limit=50"
 		);
+	}
+
+	#[test]
+	fn serializes_fund_requests() {
+		let nav = super::FundPerformanceNavRequest {
+			fund_type: super::FundType::Exchange,
+			thscode: "510300.SH".to_string(),
+			range: None,
+			nav_type: Some(super::FundNavType::Both),
+		};
+		assert_eq!(
+			serde_urlencoded::to_string(nav).unwrap(),
+			"fund_type=exchange&thscode=510300.SH&nav_type=unit%2Cadj"
+		);
+
+		let historical = super::FundMarketHistoricalRequest {
+			thscode: "510300.SH".to_string(),
+			interval: Some(PriceInterval::Day1),
+			start: 1_626_451_200_000,
+			end: 1_784_217_600_000,
+		};
+		assert_eq!(
+			serde_urlencoded::to_string(historical).unwrap(),
+			"thscode=510300.SH&interval=1d&start=1626451200000&end=1784217600000"
+		);
+	}
+
+	#[test]
+	fn deserializes_fund_responses() {
+		let holders: super::FundHoldersDetailResponse = serde_json::from_str(
+			r#"{
+				"timestamp": 1767110400000,
+				"item": [{
+					"merge_scope": "merged",
+					"report_date_ms": 1609344000000,
+					"ins_position": 0.18,
+					"holder_amount": 7058156,
+					"avg_holder_share": 4819.42,
+					"psnl_rate": 99.82,
+					"mgmt_staff_hold_rate": 0.0062
+				}]
+			}"#,
+		)
+		.unwrap();
+		assert_eq!(holders.item[0].holder_amount, 7_058_156);
+
+		let profile: super::FundProfileDetailResponse = serde_json::from_str(
+			r#"{
+				"timestamp": 1784210313786,
+				"item": [{
+					"thscode": "025480.OF",
+					"ticker": "025480",
+					"fund_name": "沪深300A",
+					"estab_date": null,
+					"mgmt_name": null,
+					"manager_name": null
+				}]
+			}"#,
+		)
+		.unwrap();
+		assert_eq!(profile.item[0].fund_name.as_deref(), Some("沪深300A"));
+		assert_eq!(profile.item[0].estab_date, None);
+
+		let holdings: super::FundPortfolioHoldingsResponse = serde_json::from_str(
+			r#"{"timestamp":0,"item":[{
+				"thscode":"300750.SZ","ticker":"300750","stock_name":"宁德时代","hold_ratio":4.67
+			}]}"#,
+		)
+		.unwrap();
+		assert_eq!(holdings.item[0].stock_name, "宁德时代");
+
+		let snapshot: super::FundMarketSnapshotResponse = serde_json::from_str(
+			r#"{"timestamp":1784210584000,"item":[{
+				"thscode":"510300.SH","ticker":"510300","last_price":4.753,"open_price":4.775,
+				"high_price":4.825,"low_price":4.724,"prev_price":4.838,
+				"price_change_ratio_pct":-1.756924,"price_change":-0.085,
+				"price_amplitude_ratio_pct":2.08764,"volume":1657822800,"turnover":7909234100,
+				"turnover_ratio_pct":9.012068
+			}]}"#,
+		)
+		.unwrap();
+		assert_eq!(snapshot.item[0].turnover_ratio_pct, 9.012068);
+
+		let historical: super::FundMarketHistoricalResponse = serde_json::from_str(
+			r#"{"timestamp":1784131200000,"thscode":"510300.SH","interval":"1d","adjust":null,"item":[{
+				"date_ms":1626624000000,"open_price":4.728,"high_price":4.769,"low_price":4.687,
+				"close_price":4.759,"volume":332046160,"turnover":1709347700
+			}]}"#,
+		)
+		.unwrap();
+		assert_eq!(historical.adjust, None);
+
+		let nav: super::FundPerformanceNavResponse = serde_json::from_str(
+			r#"{"timestamp":1784131200000,"item":[{"nav_date":1752595200000,"unit_nav":4.0713}]}"#,
+		)
+		.unwrap();
+		assert_eq!(nav.item[0].adj_nav, None);
+
+		let returns: super::FundPerformanceReturnsResponse = serde_json::from_str(
+			r#"{"timestamp":0,"item":[{"return_month":-3.33,"return_year":19.66}]}"#,
+		)
+		.unwrap();
+		assert_eq!(returns.item[0].return_tmonth, None);
 	}
 
 	#[test]

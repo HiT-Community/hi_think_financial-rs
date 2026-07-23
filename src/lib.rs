@@ -99,6 +99,90 @@ impl HiThinkFinancialClient {
 		self.request(PATH, Some(req)).await
 	}
 
+	/// 获取单只基金的基本资料。
+	///
+	/// 接口地址：`GET /api/fund/profile/detail`。
+	pub async fn fund_profile_detail(
+		&self,
+		req: types::FundProfileDetailRequest,
+	) -> anyhow::Result<types::FundProfileDetailResponse> {
+		const PATH: &str = "api/fund/profile/detail";
+
+		self.request(PATH, Some(req)).await
+	}
+
+	/// 获取基金定期披露的重仓股票及其持仓占比。
+	///
+	/// 接口地址：`GET /api/fund/portfolio/holdings`。
+	pub async fn fund_portfolio_holdings(
+		&self,
+		req: types::FundPortfolioHoldingsRequest,
+	) -> anyhow::Result<types::FundPortfolioHoldingsResponse> {
+		const PATH: &str = "api/fund/portfolio/holdings";
+
+		self.request(PATH, Some(req)).await
+	}
+
+	/// 获取基金单位净值和复权净值序列。
+	///
+	/// 接口地址：`GET /api/fund/performance/nav`。
+	pub async fn fund_performance_nav(
+		&self,
+		req: types::FundPerformanceNavRequest,
+	) -> anyhow::Result<types::FundPerformanceNavResponse> {
+		const PATH: &str = "api/fund/performance/nav";
+
+		self.request(PATH, Some(req)).await
+	}
+
+	/// 获取基金近一月、近一年和成立以来等区间收益率。
+	///
+	/// 接口地址：`GET /api/fund/performance/returns`。
+	pub async fn fund_performance_returns(
+		&self,
+		req: types::FundPerformanceReturnsRequest,
+	) -> anyhow::Result<types::FundPerformanceReturnsResponse> {
+		const PATH: &str = "api/fund/performance/returns";
+
+		self.request(PATH, Some(req)).await
+	}
+
+	/// 获取基金机构、个人投资者与持有人结构。
+	///
+	/// 接口地址：`GET /api/fund/holders/detail`。
+	pub async fn fund_holders_detail(
+		&self,
+		req: types::FundHoldersDetailRequest,
+	) -> anyhow::Result<types::FundHoldersDetailResponse> {
+		const PATH: &str = "api/fund/holders/detail";
+
+		self.request(PATH, Some(req)).await
+	}
+
+	/// 获取单只 ETF 的最新行情快照。
+	///
+	/// 接口地址：`GET /api/fund/market/snapshot`。
+	pub async fn fund_market_snapshot(
+		&self,
+		req: types::FundMarketSnapshotRequest,
+	) -> anyhow::Result<types::FundMarketSnapshotResponse> {
+		const PATH: &str = "api/fund/market/snapshot";
+
+		self.request(PATH, Some(req)).await
+	}
+
+	/// 获取单只 ETF 的历史日 K 线。
+	///
+	/// 接口地址：`GET /api/fund/market/historical`。
+	pub async fn fund_market_historical(
+		&self,
+		req: types::FundMarketHistoricalRequest,
+	) -> anyhow::Result<types::FundMarketHistoricalResponse> {
+		const PATH: &str = "api/fund/market/historical";
+
+		self.request(PATH, Some(req)).await
+	}
+
 	/// 获取单只或多只 A 股的最新行情快照，或按分页遍历全市场快照。
 	///
 	/// 接口地址：`GET /api/a-share/prices/snapshot`。

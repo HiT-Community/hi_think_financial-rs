@@ -17,7 +17,7 @@ cargo add tokio --features macros,rt-multi-thread
 
 ```toml
 [dependencies]
-hi_think_financial = "0.1.5"
+hi_think_financial = "0.1.6"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 ```
 
@@ -264,6 +264,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 ## 提供的接口
 
 - 标的检索与代码表
+- 基金资料、重仓股、净值、收益、持有人结构与 ETF 行情
 - A 股行情快照与历史 K 线
 - 全市场日 K、近十日 K 线与复权因子数据导出
 - 除复权因子
