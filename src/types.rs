@@ -136,8 +136,50 @@ pub struct ASharePricesSnapshotRequest {
 	pub offset: Option<u64>,
 }
 
-/// A 股或指数行情快照接口的响应数据。
+/// A 股估值快照接口的请求参数。
 ///
+/// 接口地址：`GET /api/a-share/valuations/snapshot`。
+#[derive(Debug, Serialize)]
+pub struct AShareValuationsSnapshotRequest {
+	/// 以英文逗号分隔的 A 股完整同花顺代码列表。
+	pub thscodes: String,
+}
+
+/// A 股估值快照接口的响应数据。
+///
+/// 接口地址：`GET /api/a-share/valuations/snapshot`。
+#[derive(Debug, Deserialize)]
+pub struct AShareValuationsSnapshotResponse {
+	/// 数据就绪时间（毫秒）。
+	pub timestamp: i64,
+	/// 匹配到的股票数量。
+	pub total: i64,
+	/// 估值快照记录列表。
+	pub item: Vec<AShareValuationSnapshotItem>,
+}
+
+/// 单条 A 股估值快照记录。
+#[derive(Debug, Deserialize)]
+pub struct AShareValuationSnapshotItem {
+	/// 带交易所后缀的完整同花顺代码。
+	pub thscode: String,
+	/// 不含交易所后缀的证券代码。
+	pub ticker: String,
+	/// 证券名称。
+	pub name: String,
+	/// 滚动市盈率。
+	pub pe_ttm: Option<f64>,
+	/// 单季度市盈率。
+	pub pe_mrq: Option<f64>,
+	/// 市净率。
+	pub pb_mrq: Option<f64>,
+	/// 滚动市销率。
+	pub ps_ttm: Option<f64>,
+	/// 滚动市现率。
+	pub pcf_ttm: Option<f64>,
+}
+
+/// A 股或指数行情快照接口的响应数据。
 /// 接口地址：`GET /api/a-share/prices/snapshot` 或
 /// `GET /api/a-share-index/prices/snapshot`。
 #[derive(Debug, Deserialize)]
