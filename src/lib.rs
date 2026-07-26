@@ -195,8 +195,19 @@ impl HiThinkFinancialClient {
 		self.request(PATH, Some(req)).await
 	}
 
-	/// 获取单只 A 股在指定时间区间内的历史日 K 线。
+	/// 批量获取 A 股最新估值快照。
 	///
+	/// 接口地址：`GET /api/a-share/valuations/snapshot`。
+	pub async fn a_share_valuations_snapshot(
+		&self,
+		req: types::AShareValuationsSnapshotRequest,
+	) -> anyhow::Result<types::AShareValuationsSnapshotResponse> {
+		const PATH: &str = "api/a-share/valuations/snapshot";
+
+		self.request(PATH, Some(req)).await
+	}
+
+	/// 获取单只 A 股在指定时间区间内的历史日 K 线。
 	/// 接口地址：`GET /api/a-share/prices/historical`。
 	pub async fn a_share_prices_historical(
 		&self,
@@ -549,6 +560,47 @@ mod tests {
 		assert_eq!(response.item[0].thscode, "600519.SH");
 		assert!(request.starts_with(
 			"GET /api/meta/tickers/list?asset_type=a-share&limit=25&offset=50 HTTP/1.1\r\n"
+		));
+		assert!(request.to_ascii_lowercase().contains("x-api-key: test-api-key\r\n"));
+	}
+
+	#[tokio::test]
+	async fn valuation_snapshot_sends_documented_query_and_deserializes_response() {
+		let response_body = r#"{
+			"code": 0,
+			"message": "success",
+			"request_id": "request-id",
+			"data": {
+				"timestamp": 1784736000000,
+				"total": 1,
+				"item": [{
+					"thscode": "600519.SH",
+					"ticker": "600519",
+					"name": "Moutai",
+					"pe_ttm": 21.3567,
+					"pe_mrq": 20.8841,
+					"pb_mrq": null,
+					"ps_ttm": 10.3284,
+					"pcf_ttm": 19.7716
+				}]
+			}
+		}"#
+		.to_string();
+		let (base_url, server) = spawn_server(response_body);
+		let client = client_for(base_url);
+
+		let response = client
+			.a_share_valuations_snapshot(types::AShareValuationsSnapshotRequest {
+				thscodes: "600519.SH,000001.SZ".to_string(),
+			})
+			.await
+			.unwrap();
+		let request = server.join().unwrap();
+
+		assert_eq!(response.item[0].pe_ttm, Some(21.3567));
+		assert_eq!(response.item[0].pb_mrq, None);
+		assert!(request.starts_with(
+			"GET /api/a-share/valuations/snapshot?thscodes=600519.SH%2C000001.SZ HTTP/1.1\r\n"
 		));
 		assert!(request.to_ascii_lowercase().contains("x-api-key: test-api-key\r\n"));
 	}

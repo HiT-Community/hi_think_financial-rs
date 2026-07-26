@@ -151,6 +151,16 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/ApiResponse'
+  /api/a-share/valuations/snapshot:
+    get:
+      tags: [A股估值]
+      summary: 获取 A 股最新估值快照
+      operationId: get_a_share_valuations_snapshot
+      parameters:
+        - $ref: '#/components/parameters/Thscodes'
+      responses:
+        '200':
+          $ref: '#/components/responses/ApiResponse'
   /api/a-share/prices/historical:
     get:
       tags: [A股行情]
